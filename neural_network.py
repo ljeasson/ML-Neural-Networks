@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 
 def softmax(z):
     exp_z = np.exp(z - np.max(z))
-    soft_max = np.amax(exp_z / np.sum(exp_z))
+    soft_max = exp_z / np.sum(exp_z)
     return soft_max
 
 def weight_initialization(x_shape, nndim, y_shape):
