@@ -33,23 +33,23 @@ def feedfoward(X,W1,W2,b1,b2):
         #print(y_pred.shape)
         return a,h,z,y_pred
 
+def one_hot_encoding(y):
+    if y==1:
+        y=np.array([0,1])
+    else:
+        y=np.array([1,0])
+    return y
+    
+    
 def calculate_loss(model,X, y):
+    
     W1, W2, b1, b2 = model['W1'], model['W2'], model['b1'], model['b2']
     a,h,z,y_pred = feedfoward(X,W1,W2,b1,b2)
-    if y_pred==0:
-        logY = np.multiply(y, 0)
-        logY_= np.multiplty(1-y,np.log2(1-y_pred))
-        loss = -np.sum(logY + logY_)/2 
-    elif y_pred==1:
-        logY = np.multiply(y, np.log2(y_pred))
-        logY_ = np.multiply(1-y,0)
-        loss = -np.sum(logY + logY_)/2 
-    else:
-        loss = -np.sum(np.multiply(y, np.log(y_pred)) +  np.multiply(1-y, np.log(1-y_pred)))/X.shape[0]
+    y = one_hot_encoding(y)
     
-    #print (loss)
-    #cost = -np.sum(np.multiply(Y, np.log(A2)) +  np.multiply(1-Y, np.log(1-A2)))/m
+    loss = -np.sum(np.multiply(y, np.log(y_pred)) +  np.multiply(1-y, np.log(1-y_pred)))/X.shape[0]
     loss = np.squeeze(loss)
+    
     cost = {
     "a": a,
     "h": h,
@@ -65,6 +65,8 @@ def backward_prop(X, Y, cost, parameters):
     y_pred = cost['y_pred']
     W2 = parameters['W2']
     X = np.reshape(X,(1,2))
+    Y = one_hot_encoding(Y)
+    
     dZ2 = np.subtract(y_pred,Y)
     dW2 = np.dot(h.T,dZ2)
     db2 = dZ2#np.sum(dZ2, axis=1, keepdims=True)/m
@@ -108,8 +110,8 @@ def update_parameters(parameters, grads, learning_rate):
 
 def build_model(X, y, nn_hdim, num_passes=20000, print_loss=False):
     c= 0
-    learning_rate = 0.1
-    parameters= weight_initialization(X.shape[1], nn_hdim, 1)
+    learning_rate = 0.001
+    parameters= weight_initialization(X.shape[1], nn_hdim, 2)
     for i in range(num_passes):
         if i % X.shape[0]-1==0:
             c = 0
@@ -118,15 +120,15 @@ def build_model(X, y, nn_hdim, num_passes=20000, print_loss=False):
             print(cost['loss'])
         grads = backward_prop(X[c], y[c], cost, parameters)
         parameters= update_parameters(parameters, grads, learning_rate)
-        print(c)
-        print(i)
+        #print(c)
+        #print(i)
         c = c +1
     return parameters
 
-## NOT SURE ABOUT THIS FUNCTION THOUGH
-def predict(model,X):
-    W1, W2, b1, b2 = model['W1'], model['W2'], model['b1'], model['b2']
-    a,h,z,y_pred = feedfoward(X,W1,W2,b1,b2)
+
+def predict(model, x):
+    _,_,_,y_pred = feedfoward(x,model['W1'],model['W2'],model['b1'],model['b2'])
+    y_pred = np.argmax(y_pred)
     return y_pred
         
 def plot_decision_boundary(pred_func, X, y ) :
