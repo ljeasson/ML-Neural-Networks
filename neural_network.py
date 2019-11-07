@@ -110,7 +110,7 @@ def update_parameters(parameters, grads, learning_rate):
 
 def build_model(X, y, nn_hdim, num_passes=20000, print_loss=False):
     c= 0
-    learning_rate = 0.001
+    learning_rate = 0.01
     parameters= weight_initialization(X.shape[1], nn_hdim, 2)
     for i in range(num_passes):
         if i % X.shape[0]-1==0:
@@ -127,9 +127,14 @@ def build_model(X, y, nn_hdim, num_passes=20000, print_loss=False):
 
 
 def predict(model, x):
-    _,_,_,y_pred = feedfoward(x,model['W1'],model['W2'],model['b1'],model['b2'])
-    y_pred = np.argmax(y_pred)
-    return y_pred
+    #print(x.shape[0])
+    y = np.zeros((1,x.shape[0]))
+    for i in range(x.shape[0]):
+        _,_,_,y_pred = feedfoward(x[i],model['W1'],model['W2'],model['b1'],model['b2'])
+        y_pred = np.argmax(y_pred)
+        #print(y_pred)
+        y[0][i] = y_pred
+    return y
         
 def plot_decision_boundary(pred_func, X, y ) :
     # Set min and max values  and  give  i t  some padding
@@ -139,6 +144,7 @@ def plot_decision_boundary(pred_func, X, y ) :
     # Generate a  grid  of  points  with  distance  h between them
     xx, yy  =  np.meshgrid(np.arange(xmin,xmax,h),np.arange(ymin,ymax,h))
     # Predict  the  function  value  for  the  whole  gid
+    #print(np.c_[xx.ravel(),yy.ravel()])
     Z  =  pred_func(np.c_[xx.ravel(),yy.ravel()])
     Z  =  Z.reshape(xx.shape)
     # Plot  the  contour and  training  examples
